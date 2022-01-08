@@ -10,6 +10,7 @@
 
 const int button_1_pin = 2;     // Push button 1 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 1
 const int button_2_pin = 3;     // Push button 2 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 2
+const int LED = 4;              // Status LED PIN - Numéro de la broche à laquelle est connecté la DEL
 
 // Variable declaration - Déclaration des variables :
 int button_1_state = 0;       // variable used to save button 1 state - variable qui sera utilisée pour stocker l'état du bouton 1
@@ -39,7 +40,7 @@ void setup()
 {
   Serial.begin(9600);     // 9600 bps
   Serial.println("Stepper motor test - Test de moteur pas a pas");
-  pinMode(4, OUTPUT); // Use pin 4 as indicator LED - Declare le Pin 5 comme sortie pour la LED
+  pinMode(LED, OUTPUT); // Use pin 4 as indicator LED - Declare le Pin 5 comme sortie pour la LED
   // set both buttons pins as input - indique que les broches bouton sont des entrées:
   pinMode(button_1_pin, INPUT);
   pinMode(button_2_pin, INPUT);
@@ -58,7 +59,7 @@ void loop()
   //100 allow for more torque, play with that to avoid vibration (>300) - 100 permet d'avoir un couple élevé >300 le moteur vibre sans tourner
 
   if (counter <= 30 && button_1_state == HIGH && button_2_state == LOW) {
-    Serial.println("LOOP1");
+    Serial.println("LOOP1 - Mode 1 selected - Running 30 times stepper 1");
 
     Steps2Take  = -4096;  // A complete rotation with 2048 steps (about 4.5sec) - Une rotation complète avec 2048 pas (1 tour environ 4.5sec)
     //To reverse rotation by 6x 1/30 of a turn, multiply Step2Take by 6/30 et add a - sign to reverse the direction
@@ -81,14 +82,14 @@ void loop()
     delay(2000);  //pause
 
     // Blink the LED - Clignotement de la LED
-    digitalWrite(4, LOW);
+    digitalWrite(LED, LOW);
     delay(100);
-    digitalWrite(4, HIGH);
+    digitalWrite(LED, HIGH);
     delay(100);
     counter++; //Add one to the counter - Ajoute 1 au counter
   }
   else if (counter <= 30 && button_1_state == LOW && button_2_state == HIGH) {
-    Serial.println("LOOP2");
+    Serial.println("LOOP2 - Mode 2 selected - Running 30 times stepper 2");
     Steps2Take  = -4096;  // A complete rotation with 2048 steps (about 4.5sec) - Une rotation complète avec 2048 pas (1 tour environ 4.5sec)
     //To reverse rotation by 6x 1/30 of a turn, multiply Step2Take by 6/30 et add a - sign to reverse the direction
     //Pour tourner à l'envers de 6 fois 1/30eme de tour, simplement multiplier Steps2Take par 6/30 et mettre un moins pour inverser le sens
@@ -110,14 +111,14 @@ void loop()
     delay(2000);  //pause
 
     // Blink the LED - Clignotement de la LED
-    digitalWrite(4, LOW);
+    digitalWrite(LED, LOW);
     delay(100);
-    digitalWrite(4, HIGH);
+    digitalWrite(LED, HIGH);
     delay(100);
     counter++; //Add 1 to the counter - Ajoute 1 au counter
   }
   else if (counter <= 30 && button_1_state == LOW && button_2_state == LOW) {
-    Serial.println("LOOP1&2 ");
+    Serial.println("LOOP1&2 - Mode 3 selected - Running 30 times both steppers");
     Steps2Take  = -4096;  // A complete rotation with 2048 steps (about 4.5sec) - Une rotation complète avec 2048 pas (1 tour environ 4.5sec)
     //To reverse rotation by 6x 1/30 of a turn, multiply Step2Take by 6/30 et add a - sign to reverse the direction
     //Pour tourner à l'envers de 6 fois 1/30eme de tour, simplement multiplier Steps2Take par 6/30 et mettre un moins pour inverser le sens
@@ -141,23 +142,23 @@ void loop()
     delay(0);  //pause
 
     // Blink the LED - Clignotement de la LED
-    digitalWrite(4, LOW);
+    digitalWrite(LED, LOW);
     delay(100);
-    digitalWrite(4, HIGH);
+    digitalWrite(LED, HIGH);
     delay(100);
     counter++; //Add 1 to the counter - Ajoute 1 au counter
   }
 
   else if (counter <= 30 && button_1_state == HIGH && button_2_state == HIGH) {
-    Serial.println("BUG INTER");
+    Serial.println("BUG INTER - Both input buttons are high, something is wrong, check connection or pull down resistors");
     counter++; //Ajoute 1 au counter
   }
 
   else if (counter <= 180) {
-    Serial.println("PAUSE ");
-    digitalWrite(4, LOW);
+    Serial.println("PAUSE - Motor runned already 30 times, pausing until 180 loops have been reached.");
+    digitalWrite(LED, LOW);
     delay(1000);
-    digitalWrite(4, HIGH);
+    digitalWrite(LED, HIGH);
     delay(1000);
     // 10 sec went by - 10 sec Ecoulé
     counter++; //Ajoute 1 au counter
