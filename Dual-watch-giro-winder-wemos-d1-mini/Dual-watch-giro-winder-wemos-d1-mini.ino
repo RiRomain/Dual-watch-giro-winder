@@ -23,10 +23,10 @@ int button_1_state = 0;       // variable used to save button 1 state - variable
 int button_2_state = 0;       // variable used to save button 2 state - variable qui sera utilisée pour stocker l'état du bouton 2
 
 //2 instances of Stepper - Créer une instance de la classe stepper
-//The motors (wire 4 3 2 1) are connected to ouput RX D1 D2 D3 and D5 D6 D7 D8 of the Arduino (and to GND, +V)
-//Les moteurs (fils 4 3 2 1) sont branché sur les sorties RX D1 D2 D3 et D5 D6 D7 D8 de l'Arduino (et sur GND, +V)
-Stepper stepper1(STEPS, RX, D2, D1, D3);  // Clockwise rotation - Sens horaire
-Stepper stepper2(STEPS, D5,  D7,  D6,  D8);  // Clockwise rotation - Sens horaire
+//The motors (wire 1 2 3 4) are connected to ouput RX D1 D2 D3 and D5 D6 D7 D8 of the Arduino (and to GND, +V)
+//Les moteurs (fils 1 2 3 4) sont branché sur les sorties RX D1 D2 D3 et D5 D6 D7 D8 de l'Arduino (et sur GND, +V)
+Stepper stepper1(STEPS, D3, D1, D2, RX);  // Clockwise rotation - Sens horaire
+Stepper stepper2(STEPS, D8,  D6,  D7,  D5);  // Clockwise rotation - Sens horaire
 
 //Use the following if you prefer an anti-clockwise rotation - Sens anti-horaire en inversant 9 et 12 / 5 et 8 (si on préfère)
 //Stepper stepper1(STEPS, D3, D2, D1, RX);
