@@ -8,9 +8,9 @@
 #include <Stepper.h>
 #define STEPS 100
 
-const int button_1_pin = 2;     // Push button 1 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 1
-const int button_2_pin = 3;     // Push button 2 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 2
-const int LED = 4;              // Status LED PIN - Numéro de la broche à laquelle est connecté la DEL
+const int button_1_pin = D0;     // Push button 1 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 1
+const int button_2_pin = TX;     // Push button 2 PIN - Numéro de la broche à laquelle est connecté le bouton poussoir 2
+const int LED = D4;              // Status LED PIN - Numéro de la broche à laquelle est connecté la DEL
 const int MOTOR_SPEED = 300;    // Max speed is 300, reduce for slower operation - Vitesse de 300 (max) réduire ce chiffre pour un mouvement plus lent
 // 100 allow for more torque, play with that to avoid vibration (>300) - 100 permet d'avoir un couple élevé >300 le moteur vibre sans tourner
 const int NUMBER_OF_STEPS = 4096; // A complete rotation is 2048 steps (about 4.5sec) - Une rotation complète avec 2048 pas (1 tour environ 4.5sec)
@@ -23,15 +23,14 @@ int button_1_state = 0;       // variable used to save button 1 state - variable
 int button_2_state = 0;       // variable used to save button 2 state - variable qui sera utilisée pour stocker l'état du bouton 2
 
 //2 instances of Stepper - Créer une instance de la classe stepper
-//The motors (wire 4 3 2 1) are connected to ouput 9 10 11 12 and 5 6 7 8 of the Arduino (and to GND, +V)
-//Les moteurs (fils 4 3 2 1) sont branché sur les sorties  9 10 11 12 et 5 6 7 8 de l'Arduino (et sur GND, +V)
-Stepper stepper1(STEPS, 9, 11, 10, 12);  // Clockwise rotation - Sens horaire
-Stepper stepper2(STEPS, 5,  7,  6,  8);  // Clockwise rotation - Sens horaire
-
+//The motors (wire 4 3 2 1) are connected to ouput RX D1 D2 D3 and D5 D6 D7 D8 of the Arduino (and to GND, +V)
+//Les moteurs (fils 4 3 2 1) sont branché sur les sorties RX D1 D2 D3 et D5 D6 D7 D8 de l'Arduino (et sur GND, +V)
+Stepper stepper1(STEPS, RX, D2, D1, D3);  // Clockwise rotation - Sens horaire
+Stepper stepper2(STEPS, D5,  D7,  D6,  D8);  // Clockwise rotation - Sens horaire
 
 //Use the following if you prefer an anti-clockwise rotation - Sens anti-horaire en inversant 9 et 12 / 5 et 8 (si on préfère)
-//Stepper stepper1(STEPS, 12, 11, 10, 9);
-//Stepper stepper2(STEPS,  8,  7,  6, 5);
+//Stepper stepper1(STEPS, D3, D2, D1, RX);
+//Stepper stepper2(STEPS,  D8,  D7,  D6,  D5);
 
 //************************************************************
 // For a motor of this type: - Pour un moteur de ce type : http://tiptopboards.com/151-moteur-pas-%C3%A0-pas-r%C3%A9duct%C3%A9-de-5v-4-fils-driver-.html
@@ -43,14 +42,19 @@ Stepper stepper2(STEPS, 5,  7,  6,  8);  // Clockwise rotation - Sens horaire
 int counter;
 void setup()
 {
-  Serial.begin(115200);     // 9600 bps
-  Serial.println("Stepper motor test - Test de moteur pas a pas");
-
   pinMode(LED, OUTPUT); // Use pin LED as output - Declare le Pin LED comme sortie
 
   // set both buttons pins as input - indique que les broches bouton sont des entrées:
   pinMode(button_1_pin, INPUT);
   pinMode(button_2_pin, INPUT);
+  pinMode(RX, OUTPUT);
+  pinMode(D2, OUTPUT);
+  pinMode(D3, OUTPUT);
+  pinMode(D4, OUTPUT);
+  pinMode(D5, OUTPUT);
+  pinMode(D6, OUTPUT);
+  pinMode(D7, OUTPUT);
+  pinMode(D8, OUTPUT);
 }
 
 void loop()
@@ -74,21 +78,17 @@ void loop()
   if (counter <= 30) {
     //If the 3 position switch is in the middle position, both motor will run, otherwise, only the selected side will run.
     if (button_1_state == LOW) {
-      Serial.println("Turning motor 1 anticlockwise");
       stepper1.step(-NUMBER_OF_STEPS);  //Turning anticlockwise - Ca tourne
     }
     if (button_2_state == LOW) {
-      Serial.println("Turning motor 2 anticlockwise");
       stepper2.step(-NUMBER_OF_STEPS);  //Turning anticlockwise - Ca tourne
     }
     delay(2000);  //pause
 
     if (button_1_state == LOW) {
-      Serial.println("Turning motor 1 clockwise");
       stepper1.step(NUMBER_OF_STEPS);  //Turning clockwise - Ca tourne
     }
     if (button_2_state == LOW) {
-      Serial.println("Turning motor 2 clockwise");
       stepper2.step(NUMBER_OF_STEPS);  //Turning clockwise - Ca tourne
     }
 
@@ -102,13 +102,19 @@ void loop()
   }
 
   if (button_1_state == HIGH && button_2_state == HIGH) {
-    Serial.println("BUG INTER - Both input buttons are high, something is wrong, check connection or pull down resistors");
+    //BUG INTER - Both input buttons are high, something is wrong, check connection or pull down resistors
+    for (int i = 0; i <= 10; i++) {
+      //Blink led fast to inform of the error
+      digitalWrite(LED, LOW);
+      delay(200);
+      digitalWrite(LED, HIGH);
+      delay(200);
+    }
     counter++; //Ajoute 1 au counter
   }
 
 
   if (counter > 30 && counter < 180) {
-    Serial.println("PAUSE - Motor runned already 30 times, pausing until 180 loops have been reached.");
     digitalWrite(LED, LOW);
     delay(1000);
     digitalWrite(LED, HIGH);
